@@ -7,7 +7,7 @@ Never read .env directly in any other module.
 """
 
 import os
-from .env import load_dotenv
+from dotenv import load_dotenv
 
 # Load .env file into environment
 load_dotenv()
