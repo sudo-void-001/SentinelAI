@@ -35,8 +35,9 @@ def query_groq(prompt: str) -> str:
     payload = {
         "model": GROQ_MODEL,
         "messages": [{"role": "user", "content": prompt}],
-        "max_tokens": 300,
+        "max_tokens": 1024,
         "temperature": 0.3,
+        "stream":False,
     }
 
     try:
