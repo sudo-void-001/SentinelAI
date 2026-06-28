@@ -14,7 +14,7 @@ load_dotenv()
 
 # ─── AI ───────────────────────────────────────────
 GROQ_API_KEY: str = os.getenv("GROQ_API_KEY", "")
-GROQ_MODEL: str = "llama3-8b-8192"
+GROQ_MODEL: str = "openai/gpt-oss-20b"
 
 # ─── TELEGRAM ─────────────────────────────────────
 TELEGRAM_BOT_TOKEN: str = os.getenv("TELEGRAM_BOT_TOKEN", "")

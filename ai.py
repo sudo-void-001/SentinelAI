@@ -1,24 +1,25 @@
 """
 ai.py — AI intelligence layer for SentinelAI.
 
-Connects to Groq API to summarize articles,
-categorize threats, and estimate severity.
-Model: llama3-8b-8192 (free tier)
+Uses official Groq SDK for summarization,
+categorization, and severity estimation.
 """
 
-import requests
+from groq import Groq
 from config import GROQ_API_KEY, GROQ_MODEL
 
 
-GROQ_URL = "https://api.groq.com/openai/v1/chat/completions"
+def get_client() -> Groq:
+    """Return configured Groq client."""
+    return Groq(api_key=GROQ_API_KEY)
 
 
 def query_groq(prompt: str) -> str:
     """
-    Send a prompt to Groq API and return the response.
+    Send a prompt to Groq and return response.
 
     Args:
-        prompt: The instruction and content to process.
+        prompt: Instruction and content to process.
 
     Returns:
         AI response text, or empty string on failure.
@@ -27,26 +28,18 @@ def query_groq(prompt: str) -> str:
         print("[ai.py] No GROQ_API_KEY found in .env")
         return ""
 
-    headers = {
-        "Authorization": f"Bearer {GROQ_API_KEY}",
-        "Content-Type": "application/json",
-    }
-
-    payload = {
-        "model": GROQ_MODEL,
-        "messages": [{"role": "user", "content": prompt}],
-        "max_tokens": 1024,
-        "temperature": 0.3,
-        "stream":False,
-    }
-
     try:
-        response = requests.post(GROQ_URL, headers=headers, json=payload, timeout=15)
-        response.raise_for_status()
-        return response.json()["choices"][0]["message"]["content"].strip()
+        client = get_client()
+        response = client.chat.completions.create(
+            model=GROQ_MODEL,
+            messages=[{"role": "user", "content": prompt}],
+            max_tokens=300,
+            temperature=0.3,
+        )
+        return response.choices[0].message.content.strip()
 
-    except requests.RequestException as e:
-        print(f"[ai.py] Groq API call failed: {e}")
+    except Exception as e:
+        print(f"[ai.py] Groq call failed: {e}")
         return ""
 
 
@@ -69,7 +62,6 @@ Title: {title}
 Content: {content}
 
 Summary:"""
-
     return query_groq(prompt)
 
 
@@ -81,8 +73,7 @@ def categorize_article(title: str) -> str:
         title: Article headline.
 
     Returns:
-        Category string: ransomware, vulnerability, breach,
-        malware, patch, phishing, or general.
+        Category string.
     """
     prompt = f"""Categorize this cybersecurity headline into exactly one word.
 Choose from: ransomware, vulnerability, breach, malware, patch, phishing, general
@@ -90,15 +81,14 @@ Choose from: ransomware, vulnerability, breach, malware, patch, phishing, genera
 Headline: {title}
 
 Category:"""
-
     result = query_groq(prompt).lower().strip()
-    valid = {"ransomware", "vulnerability", "breach", "malware", "patch", "phishing", "general"}
+    valid = {"ransomware","vulnerability","breach","malware","patch","phishing","general"}
     return result if result in valid else "general"
 
 
 def estimate_severity(title: str, summary: str) -> str:
     """
-    Estimate threat severity from title and summary.
+    Estimate threat severity.
 
     Args:
         title: Article headline.
@@ -114,23 +104,21 @@ Title: {title}
 Summary: {summary}
 
 Severity:"""
-
     result = query_groq(prompt).lower().strip()
-    valid = {"critical", "high", "medium", "low"}
+    valid = {"critical","high","medium","low"}
     return result if result in valid else "low"
 
 
 def enrich_article(title: str, content: str) -> dict:
     """
     Run all AI functions on one article.
-    Returns summary, category, and severity together.
 
     Args:
         title: Article headline.
         content: Article body or description.
 
     Returns:
-        Dict with keys: summary, category, severity.
+        Dict with summary, category, severity.
     """
     summary = summarize_article(title, content)
     category = categorize_article(title)
