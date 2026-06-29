@@ -2,12 +2,14 @@
 news.py — Cybersecurity news collector for SentinelAI.
 
 Fetches articles from HackerNews Algolia API and RSS feeds.
+Scrapes article body content for AI summarization.
 Returns Article dataclass objects ready for storage.
 """
 
 import requests
 import feedparser
 from datetime import datetime
+from bs4 import BeautifulSoup
 from models import Article
 from config import HACKERNEWS_API_URL, RSS_FEEDS, NEWS_FETCH_LIMIT
 
@@ -31,6 +33,53 @@ def is_security_related(text: str) -> bool:
     """
     text_lower = text.lower()
     return any(keyword.lower() in text_lower for keyword in SECURITY_KEYWORDS)
+
+
+def scrape_article_content(url: str) -> str:
+    """
+    Scrape article body text from a URL.
+    Strips scripts, styles, nav, and footer noise.
+    Returns empty string on any failure.
+
+    Args:
+        url: Article URL to scrape.
+
+    Returns:
+        Cleaned article body text (max 3000 chars), or empty string.
+    """
+    try:
+        headers = {
+            "User-Agent": (
+                "Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
+                "AppleWebKit/537.36 (KHTML, like Gecko) "
+                "Chrome/120.0.0.0 Safari/537.36"
+            )
+        }
+        response = requests.get(url, headers=headers, timeout=8)
+        response.raise_for_status()
+
+        soup = BeautifulSoup(response.text, "html.parser")
+
+        # Remove noise tags
+        for tag in soup(["script", "style", "nav", "footer", "header", "aside", "form"]):
+            tag.decompose()
+
+        # Extract paragraph text
+        paragraphs = soup.find_all("p")
+        text = " ".join(p.get_text(strip=True) for p in paragraphs)
+        text = " ".join(text.split())  # Normalize whitespace
+
+        return text[:3000]
+
+    except requests.Timeout:
+        print(f"[news.py] Scrape timeout for: {url}")
+        return ""
+    except requests.RequestException as e:
+        print(f"[news.py] Scrape request failed for {url}: {e}")
+        return ""
+    except Exception as e:
+        print(f"[news.py] Scrape failed for {url}: {e}")
+        return ""
 
 
 def fetch_hackernews() -> list[Article]:
@@ -103,11 +152,15 @@ def fetch_rss_feeds() -> list[Article]:
                 if hasattr(entry, "published_parsed") and entry.published_parsed:
                     published_at = datetime(*entry.published_parsed[:6])
 
+                # Use RSS description as fallback content
+                description = entry.get("summary", "") or entry.get("description", "")
+
                 articles.append(Article(
                     title=title,
                     url=url,
                     source=feed.feed.get("title", feed_url),
                     published_at=published_at,
+                    raw_content=description,
                 ))
 
         except Exception as e:
@@ -118,10 +171,10 @@ def fetch_rss_feeds() -> list[Article]:
 
 def collect_all_news() -> list[Article]:
     """
-    Run all collectors and return combined deduplicated articles.
+    Run all collectors, deduplicate, scrape content.
 
     Returns:
-        List of unique Article objects from all sources.
+        List of unique Article objects with raw_content populated.
     """
     all_articles = []
     all_articles.extend(fetch_hackernews())
@@ -134,6 +187,16 @@ def collect_all_news() -> list[Article]:
         if article.url not in seen_urls:
             seen_urls.add(article.url)
             unique_articles.append(article)
+
+    # Scrape content for articles that don't have it yet
+    for article in unique_articles:
+        existing = getattr(article, "raw_content", "") or ""
+        if len(existing.split()) < 30:
+            scraped = scrape_article_content(article.url)
+            if scraped:
+                article.raw_content = scraped
+            # If scrape also fails, raw_content stays as-is
+            # ai.py will handle the empty content gracefully
 
     print(f"[news.py] Collected {len(unique_articles)} unique articles")
     return unique_articles

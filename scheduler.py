@@ -3,7 +3,7 @@ scheduler.py — Automated pipeline scheduler for SentinelAI.
 
 Uses APScheduler to run the full pipeline on a schedule.
 News and CVEs collected every 6 hours.
-Daily report and Telegram digest sent at 8AM UTC.
+Daily report and Telegram digest sent at 09:00 IST (03:30 UTC).
 """
 
 from apscheduler.schedulers.blocking import BlockingScheduler
@@ -31,7 +31,7 @@ def run_collection_pipeline() -> None:
     # Collect and store news
     articles = collect_all_news()
     for article in articles:
-        enriched = enrich_article(article.title, article.raw_content)
+        enriched = enrich_article(article.title, article.raw_content or "")
         article.summary = enriched["summary"]
         article.category = enriched["category"]
         article.severity = enriched["severity"]
@@ -50,7 +50,7 @@ def run_collection_pipeline() -> None:
 def run_daily_report() -> None:
     """
     Generate daily report and send Telegram digest.
-    Runs at 8AM UTC every day.
+    Runs at 09:00 IST (03:30 UTC) every day.
     """
     from reports import generate_daily_report
     from database import get_recent_articles, get_critical_cves
@@ -84,12 +84,12 @@ def start_scheduler() -> None:
 
     scheduler.add_job(
         run_daily_report,
-        trigger=CronTrigger(hour=8, minute=0),
+        trigger=CronTrigger(hour=3, minute=30),  # 03:30 UTC = 09:00 IST
         id="daily_report",
     )
 
     log("scheduler", f"Pipeline runs every {SCHEDULE_INTERVAL_HOURS} hours")
-    log("scheduler", "Daily report runs at 08:00 UTC")
+    log("scheduler", "Daily report runs at 09:00 IST (03:30 UTC)")
     log("scheduler", "SentinelAI is running. Press Ctrl+C to stop.")
 
     scheduler.start()
