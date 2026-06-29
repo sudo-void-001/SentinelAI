@@ -92,4 +92,5 @@ def start_scheduler() -> None:
     log("scheduler", "Daily report runs at 09:00 IST (03:30 UTC)")
     log("scheduler", "SentinelAI is running. Press Ctrl+C to stop.")
 
+    
     scheduler.start()

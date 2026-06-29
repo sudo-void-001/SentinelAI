@@ -5,6 +5,7 @@ Uses official Groq SDK for summarization,
 categorization, and severity estimation.
 """
 
+import time
 from groq import Groq
 from config import GROQ_API_KEY, GROQ_MODEL
 
@@ -83,6 +84,7 @@ def query_groq(prompt: str) -> str:
         return ""
 
     try:
+        time.sleep(0.5)  # Prevent Groq rate limit hits
         client = get_client()
         response = client.chat.completions.create(
             model=GROQ_MODEL,
