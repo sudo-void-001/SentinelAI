@@ -45,7 +45,9 @@ python main.py
 
 ## Terminal Execution
 
-![Terminal Output](docs/screenshots/terminal.png)
+![Terminal Output]
+
+docs/screenshots/terminal.png
 
 *SentinelAI running successfully with scheduler, database, news collection, CVE tracking, AI summarization, and Telegram integration.*
 
@@ -53,7 +55,8 @@ python main.py
 
 ## Telegram Digest — Part 1
 
-![Telegram Digest Part 1](docs/screenshots/telegram(1).png)
+![Telegram Digest Part 1]
+docs/screenshots/telegram(1).jpeg
 
 *Daily cybersecurity digest showing threat summaries and article intelligence.*
 
@@ -61,7 +64,8 @@ python main.py
 
 ## Telegram Digest — Part 2
 
-![Telegram Digest Part 2](docs/screenshots/telegram(2).png)
+![Telegram Digest Part 2]
+docs/screenshots/telegram(2).jpeg
 
 *Continuation of the Telegram digest with additional threat reports and AI-generated summaries.*
 
