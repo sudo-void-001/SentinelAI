@@ -47,7 +47,8 @@ python main.py
 
 ![Terminal Output]
 
-docs/screenshots/terminal.png
+<img width="3840" height="2160" alt="Screenshot 2026-06-30 150212" src="https://github.com/user-attachments/assets/c6abf6bb-d5de-42cc-8077-7db544dab89e" />
+
 
 *SentinelAI running successfully with scheduler, database, news collection, CVE tracking, AI summarization, and Telegram integration.*
 
@@ -56,7 +57,8 @@ docs/screenshots/terminal.png
 ## Telegram Digest — Part 1
 
 ![Telegram Digest Part 1]
-docs/screenshots/telegram(1).jpeg
+<img width="576" height="1280" alt="telegram(1)" src="https://github.com/user-attachments/assets/f3f3f139-f27b-454e-887b-79be0ab48bca" />
+
 
 *Daily cybersecurity digest showing threat summaries and article intelligence.*
 
@@ -65,7 +67,8 @@ docs/screenshots/telegram(1).jpeg
 ## Telegram Digest — Part 2
 
 ![Telegram Digest Part 2]
-docs/screenshots/telegram(2).jpeg
+<img width="576" height="1280" alt="telegram(2)" src="https://github.com/user-attachments/assets/08f2a1b4-91bd-4954-bdc7-35129e765f73" />
+
 
 *Continuation of the Telegram digest with additional threat reports and AI-generated summaries.*
 
