@@ -40,3 +40,29 @@ pip install -r requirements.txt
 cp .env.example .env
 # Edit .env with your API keys
 python main.py
+
+# Screenshots
+
+## Terminal Execution
+
+![Terminal Output](docs/screenshots/terminal.png)
+
+*SentinelAI running successfully with scheduler, database, news collection, CVE tracking, AI summarization, and Telegram integration.*
+
+---
+
+## Telegram Digest — Part 1
+
+![Telegram Digest Part 1](docs/screenshots/telegram(1).png)
+
+*Daily cybersecurity digest showing threat summaries and article intelligence.*
+
+---
+
+## Telegram Digest — Part 2
+
+![Telegram Digest Part 2](docs/screenshots/telegram(2).png)
+
+*Continuation of the Telegram digest with additional threat reports and AI-generated summaries.*
+
+---

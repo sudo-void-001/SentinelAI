@@ -44,7 +44,7 @@ def send_message(text: str) -> bool:
 
 def send_daily_digest(articles: list[dict]) -> bool:
     """
-    Send top 5 articles as daily digest message.
+    Send top 5 articles as daily digest message with stats header.
 
     Args:
         articles: List of article dicts from database.
@@ -55,21 +55,43 @@ def send_daily_digest(articles: list[dict]) -> bool:
     if not articles:
         return False
 
+    from utils import get_severity_emoji
+
     date_str = datetime.utcnow().strftime("%B %d, %Y")
-    lines = [f"<b>🛡 SentinelAI Daily Digest — {date_str}</b>\n"]
+
+    # Count severities for header stats
+    counts = {"critical": 0, "high": 0, "medium": 0, "low": 0}
+    for article in articles:
+        sev = article.get("severity", "low").lower()
+        if sev in counts:
+            counts[sev] += 1
+
+    lines = [
+        f"<b>🛡 SentinelAI Daily Digest</b>",
+        f"<i>{date_str}</i>\n",
+        f"🔴 Critical: {counts['critical']}  🟠 High: {counts['high']}  "
+        f"🟡 Medium: {counts['medium']}  🟢 Low: {counts['low']}",
+        f"<i>Total Articles: {len(articles)}</i>\n",
+        "─" * 30,
+    ]
 
     for i, article in enumerate(articles[:5], 1):
-        severity = article.get("severity", "low").upper()
+        severity = article.get("severity", "low").lower()
+        emoji = get_severity_emoji(severity)
         title = article.get("title", "")
         url = article.get("url", "")
-        summary = article.get("summary", "No summary available.")
+        summary = article.get("summary", "").strip()
+        category = article.get("category", "general").capitalize()
         source = article.get("source", "")
 
+        if not summary:
+            summary = "Brief: Unable to generate AI summary. Click 'Read more' for the full technical report."
+
         lines.append(
-            f"<b>{i}. [{severity}] {title}</b>\n"
+            f"\n<b>{i}. {emoji} [{severity.upper()}] {title}</b>\n"
             f"{summary}\n"
-            f"<i>Source: {source}</i>\n"
-            f"<a href='{url}'>Read more</a>\n"
+            f"<i>Category: {category} | Source: {source}</i>\n"
+            f"<a href='{url}'>Read more</a>"
         )
 
     message = "\n".join(lines)

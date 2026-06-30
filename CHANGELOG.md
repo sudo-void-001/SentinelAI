@@ -1,4 +1,19 @@
 # Changelog
+## [1.0.1] — 2026-06-30
+
+### Fixed
+- Updated Groq model from deprecated llama3-8b-8192 to openai/gpt-oss-20b
+- Fixed Telegram bot token and chat ID configuration issues
+- Resolved .env loading inconsistencies between terminals
+
+### Changed
+- Improved Telegram digest with severity emoji indicators
+- Added digest statistics header showing threat count by severity
+- Better fallback text when AI summary is unavailable
+- Updated requirements.txt with correct groq SDK version
+
+### Added
+- Category and source metadata shown in Telegram digest
 
 ## [1.0.0] — 2026-06-28
 
