@@ -12,8 +12,7 @@ from models.user import Base
 from models.activity_log import ActivityLog
 from models.digest_slot import DigestSlot
 from models.invite import InviteCode
-from routers import auth
-
+from routers import auth, admin, slots, dashboard
 
 app = FastAPI(
     title=APP_NAME,
@@ -29,17 +28,21 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Register routers
+# Register all routers
 app.include_router(auth.router)
+app.include_router(admin.router)
+app.include_router(slots.router)
+app.include_router(dashboard.router)
 
 
 @app.on_event("startup")
 async def startup_event():
-    """Initialize database and seed default data on startup."""
+    """Initialize database on startup."""
     Base.metadata.create_all(bind=engine)
     init_db()
     print(f"✅ {APP_NAME} v{APP_VERSION} started")
     print("✅ Database initialized")
+    print("✅ All routers registered")
 
 
 @app.get("/")
