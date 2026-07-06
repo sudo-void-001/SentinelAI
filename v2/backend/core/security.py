@@ -1,6 +1,5 @@
 """
 core/security.py — JWT authentication and password hashing.
-
 Handles token creation, verification, and password security.
 """
 

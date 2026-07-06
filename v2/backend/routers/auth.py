@@ -1,13 +1,11 @@
 """
 routers/auth.py — Authentication routes for SentinelAI V2.
-
 Handles user registration, login, and token management.
-All routes here are public (no auth required).
 """
 
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
-from pydantic import BaseModel, EmailStr
+from pydantic import BaseModel, EmailStr, Field
 from datetime import datetime
 
 from core.database import get_db
@@ -20,15 +18,15 @@ router = APIRouter(prefix="/auth", tags=["Authentication"])
 # ─── REQUEST SCHEMAS ──────────────────────────────
 
 class SignupRequest(BaseModel):
-    username: str
+    username: str = Field(min_length=3, max_length=30)
     email: EmailStr
-    password: str
-    invite_code: str
+    password: str = Field(min_length=8, max_length=100)
+    invite_code: str = Field(min_length=6, max_length=20)
 
 
 class LoginRequest(BaseModel):
-    username: str
-    password: str
+    username: str = Field(min_length=1, max_length=30)
+    password: str = Field(min_length=1, max_length=100)
 
 
 class TokenResponse(BaseModel):
@@ -57,7 +55,6 @@ def signup(request: SignupRequest, db: Session = Depends(get_db)):
     """
     from models.invite import InviteCode
 
-    # Validate invite code
     invite = db.query(InviteCode).filter(
         InviteCode.code == request.invite_code,
         InviteCode.is_used == False
@@ -69,21 +66,18 @@ def signup(request: SignupRequest, db: Session = Depends(get_db)):
             detail="Invalid or expired invite code."
         )
 
-    # Check username not taken
     if db.query(User).filter(User.username == request.username).first():
         raise HTTPException(
             status_code=400,
             detail="Username already taken."
         )
 
-    # Check email not taken
     if db.query(User).filter(User.email == request.email).first():
         raise HTTPException(
             status_code=400,
             detail="Email already registered."
         )
 
-    # Create user
     user = User(
         username=request.username,
         email=request.email,
@@ -93,7 +87,6 @@ def signup(request: SignupRequest, db: Session = Depends(get_db)):
     db.add(user)
     db.flush()
 
-    # Mark invite as used
     invite.is_used = True
     invite.used_by = user.id
     db.commit()
@@ -109,12 +102,12 @@ def signup(request: SignupRequest, db: Session = Depends(get_db)):
 
 
 @router.post("/login", response_model=TokenResponse)
-def login(request: LoginRequest, db: Session = Depends(get_db)):
+def login(login_data: LoginRequest, db: Session = Depends(get_db)):
     """
     Login with username and password.
 
     Args:
-        request: Login credentials.
+        login_data: Login credentials.
         db: Database session.
 
     Returns:
@@ -123,9 +116,9 @@ def login(request: LoginRequest, db: Session = Depends(get_db)):
     Raises:
         HTTPException 401 if credentials invalid or account disabled.
     """
-    user = db.query(User).filter(User.username == request.username).first()
+    user = db.query(User).filter(User.username == login_data.username).first()
 
-    if not user or not verify_password(request.password, user.hashed_password):
+    if not user or not verify_password(login_data.password, user.hashed_password):
         raise HTTPException(
             status_code=401,
             detail="Invalid username or password."
@@ -137,7 +130,6 @@ def login(request: LoginRequest, db: Session = Depends(get_db)):
             detail="Account has been disabled. Contact admin."
         )
 
-    # Update last active
     user.last_active = datetime.utcnow()
     db.commit()
 
