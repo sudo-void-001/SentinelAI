@@ -6,6 +6,7 @@ No other module should import sqlite3 directly.
 """
 
 import sqlite3
+from pathlib import Path
 from datetime import datetime
 from config import DB_PATH
 from models import Article, CVE
@@ -18,7 +19,12 @@ def get_connection() -> sqlite3.Connection:
     Returns:
         sqlite3.Connection with row_factory set for dict-like access.
     """
-    conn = sqlite3.connect(DB_PATH)
+    db_path = Path(DB_PATH)
+
+    # Ensure database directory exists
+    db_path.parent.mkdir(parents=True, exist_ok=True)
+
+    conn = sqlite3.connect(db_path)
     conn.row_factory = sqlite3.Row
     return conn
 
