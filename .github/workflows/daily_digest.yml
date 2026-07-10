@@ -2,10 +2,8 @@ name: SentinelAI Daily Digest
 
 on:
   schedule:
-    # Runs at 3:30 AM UTC = 9:00 AM IST
     - cron: '30 3 * * *'
   workflow_dispatch:
-    # Also allows manual trigger from GitHub
 
 jobs:
   run-digest:
@@ -20,20 +18,19 @@ jobs:
         with:
           python-version: '3.11'
 
-      - name: Install V1 dependencies
-        run: |
-          pip install -r v1/requirements.txt
+      - name: Install dependencies
+        run: pip install -r v1/requirements.txt
+
+      - name: Create data directory
+        run: mkdir -p v1/data
 
       - name: Run digest pipeline
         env:
           GROQ_API_KEY: ${{ secrets.GROQ_API_KEY }}
           TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
           TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
-          EMAIL_ADDRESS: ${{ secrets.EMAIL_ADDRESS }}
-          EMAIL_PASSWORD: ${{ secrets.EMAIL_PASSWORD }}
-          NEWS_FETCH_LIMIT: 20
-          CVE_FETCH_LIMIT: 10
-          SCHEDULE_INTERVAL_HOURS: 6
-        run: |
-          cd v1
-          python main.py --once
+          NEWS_FETCH_LIMIT: "20"
+          CVE_FETCH_LIMIT: "10"
+          SCHEDULE_INTERVAL_HOURS: "6"
+        working-directory: v1
+        run: python main.py --once
