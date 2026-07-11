@@ -93,9 +93,18 @@ async def init_admin(secret: str):
     db = SessionLocal()
 
     existing = db.query(User).filter(User.role == "admin").first()
+
     if existing:
-        db.close()
-        return {"message": "Admin already exists.", "username": existing.username}
+        existing.hashed_password = hash_password("SentinelAI@2026")
+    db.commit()
+
+    db.close()
+
+    return {
+        "message": "Admin password reset.",
+        "username": existing.username,
+        "password": "SentinelAI@2026"
+    }
 
     admin_user = User(
         username="rajesh",
