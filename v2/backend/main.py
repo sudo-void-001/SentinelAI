@@ -71,3 +71,51 @@ async def health():
         "status": "healthy",
         "database": "connected",
     }
+@app.post("/setup/init-admin")
+async def init_admin(secret: str):
+    """
+    One-time admin setup. Remove after use.
+    """
+    if secret != "sentinelai-setup-2026":
+        raise HTTPException(status_code=403, detail="Invalid setup key.")
+
+    from core.database import SessionLocal
+    from core.security import hash_password
+    from models.invite import InviteCode
+    import secrets as sec
+
+    db = SessionLocal()
+    existing = db.query(User).filter(User.role == "admin").first()
+    if existing:
+        db.close()
+        return {"message": "Admin already exists."}
+
+    from models.user import User
+    admin = User(
+        username="rajesh",
+        email="rajeshpattan585@gmail.com",
+        hashed_password=hash_password("change-this-password"),
+        role="admin",
+        is_active=True,
+        digest_slot=9,
+        notify_email=True,
+    )
+    db.add(admin)
+    db.commit()
+    db.refresh(admin)
+
+    codes = []
+    for i in range(10):
+        code = sec.token_urlsafe(8)
+        invite = InviteCode(code=code, created_by=admin.id)
+        db.add(invite)
+        codes.append(code)
+
+    db.commit()
+    db.close()
+
+    return {
+        "message": "Admin created.",
+        "username": "rajesh",
+        "invite_codes": codes,
+    }
