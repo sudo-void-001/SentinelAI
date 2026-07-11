@@ -17,13 +17,22 @@ from routers import auth, admin, slots, dashboard
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    """Initialize database on startup."""
+    """Initialize database and start scheduler on startup."""
     Base.metadata.create_all(bind=engine)
     init_db()
+
+    # Start V2 email digest scheduler
+    from core.scheduler_v2 import start_v2_scheduler
+    scheduler = start_v2_scheduler()
+
     print(f"✅ {APP_NAME} v{APP_VERSION} started")
     print("✅ Database initialized")
-    print("✅ All routers registered")
+    print("✅ Email scheduler running")
+
     yield
+
+    scheduler.shutdown()
+    print("✅ Scheduler stopped")
 
 
 app = FastAPI(
@@ -35,10 +44,7 @@ app = FastAPI(
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=[
-        "http://localhost:8501",
-        "http://127.0.0.1:8501",
-    ],
+    allow_origins=["*"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -52,7 +58,6 @@ app.include_router(dashboard.router)
 
 @app.get("/")
 async def root():
-    """Health check endpoint."""
     return {
         "app": APP_NAME,
         "version": APP_VERSION,
@@ -62,7 +67,6 @@ async def root():
 
 @app.get("/health")
 async def health():
-    """Detailed health check."""
     return {
         "status": "healthy",
         "database": "connected",

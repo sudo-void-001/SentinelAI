@@ -1,15 +1,14 @@
 """
-components/api_client.py — HTTP client for SentinelAI V2 backend.
-
-All Streamlit pages talk to FastAPI through this client.
-Never call the backend directly from pages.
+components/api_client.py — HTTP client for SentinelAI V2.
 """
 
+import os
 import requests
 import streamlit as st
 from typing import Optional
 
-API_BASE = "http://127.0.0.1:8000"
+# Use environment variable for production, fallback to local
+API_BASE = os.getenv("API_BASE_URL", "http://127.0.0.1:8000")
 
 
 def get_headers() -> dict:
