@@ -310,15 +310,17 @@ def _send_email(
     msg["From"] = f"SentinelAI <{email_address}>"
     msg["To"] = to_email
     msg.attach(MIMEText(html, "html"))
+    import os
+    import resend
 
-    server = smtplib.SMTP("smtp.gmail.com", 587, timeout=30)
-    server.ehlo()
-    server.starttls()
-    server.ehlo()
+    resend.api_key = os.getenv("RESEND_API_KEY")
 
-    server.login(email_address, email_password)
-    server.sendmail(email_address, to_email, msg.as_string())
-    server.quit()
+    resend.Emails.send({
+    "from": "SentinelAI <onboarding@resend.dev>",
+    "to": [to_email],
+    "subject": f"🛡 SentinelAI Daily Digest — {date_str}",
+    "html": html,
+})
 
 
 def start_v2_scheduler() -> BackgroundScheduler:
