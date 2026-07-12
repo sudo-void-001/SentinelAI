@@ -311,9 +311,14 @@ def _send_email(
     msg["To"] = to_email
     msg.attach(MIMEText(html, "html"))
 
-    with smtplib.SMTP_SSL("smtp.gmail.com", 465) as server:
-        server.login(email_address, email_password)
-        server.sendmail(email_address, to_email, msg.as_string())
+    server = smtplib.SMTP("smtp.gmail.com", 587, timeout=30)
+    server.ehlo()
+    server.starttls()
+    server.ehlo()
+
+    server.login(email_address, email_password)
+    server.sendmail(email_address, to_email, msg.as_string())
+    server.quit()
 
 
 def start_v2_scheduler() -> BackgroundScheduler:
