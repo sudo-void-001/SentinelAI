@@ -146,7 +146,7 @@ async def test_email(secret: str, email: str):
 
     EMAIL_ADDRESS = os.getenv("EMAIL_ADDRESS", "")
     EMAIL_PASSWORD = os.getenv("EMAIL_PASSWORD", "")
-    DASHBOARD_URL = os.getenv("DASHBOARD_URL", "http://localhost:8501")
+    DASHBOARD_URL = os.getenv("DASHBOARD_URL", "https://your-frontend.onrender.com")
 
     if not EMAIL_ADDRESS or not EMAIL_PASSWORD:
         raise HTTPException(status_code=500, detail="Email not configured in environment.")
