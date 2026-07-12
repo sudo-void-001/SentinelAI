@@ -135,3 +135,38 @@ async def init_admin(secret: str):
         "password": "SentinelAI@2026",
         "invite_codes": codes,
     }
+@app.post("/test/send-email")
+async def test_email(secret: str, email: str):
+    """Test email sending directly. Remove after testing."""
+    if secret != "sentinelai-setup-2026":
+        raise HTTPException(status_code=403, detail="Invalid key.")
+
+    from core.scheduler_v2 import _fetch_articles, _fetch_cves, _send_email
+    import os
+
+    EMAIL_ADDRESS = os.getenv("EMAIL_ADDRESS", "")
+    EMAIL_PASSWORD = os.getenv("EMAIL_PASSWORD", "")
+    DASHBOARD_URL = os.getenv("DASHBOARD_URL", "http://localhost:8501")
+
+    if not EMAIL_ADDRESS or not EMAIL_PASSWORD:
+        raise HTTPException(status_code=500, detail="Email not configured in environment.")
+
+    articles = _fetch_articles(limit=5)
+    cves = _fetch_cves(limit=3)
+
+    _send_email(
+        to_email=email,
+        username="Rajesh",
+        articles=articles,
+        cves=cves,
+        email_address=EMAIL_ADDRESS,
+        email_password=EMAIL_PASSWORD,
+        dashboard_url=DASHBOARD_URL,
+    )
+
+    return {
+        "sent": True,
+        "to": email,
+        "articles": len(articles),
+        "cves": len(cves),
+    }
