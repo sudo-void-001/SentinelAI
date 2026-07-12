@@ -25,7 +25,7 @@ def send_digest_for_slot(hour: int) -> None:
 
     EMAIL_ADDRESS = os.getenv("EMAIL_ADDRESS", "")
     EMAIL_PASSWORD = os.getenv("EMAIL_PASSWORD", "")
-    DASHBOARD_URL = os.getenv("DASHBOARD_URL", "http://localhost:8501")
+    DASHBOARD_URL = os.getenv("DASHBOARD_URL", "https://your-frontend.onrender.com")
 
     if not EMAIL_ADDRESS or not EMAIL_PASSWORD:
         print(f"[scheduler_v2] Email not configured. Skipping slot {hour}.")
