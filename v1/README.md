@@ -29,7 +29,7 @@ via Telegram — so you spend less time searching and more time acting.
 | Scheduler    | APScheduler       |
 | Notifications| Telegram Bot API  |
 
----
+---------------------------------------------------------------------------------------------
 
 ## Quick Start
 
