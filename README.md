@@ -8,7 +8,7 @@ It aggregates cybersecurity news and vulnerability data, leverages AI to generat
 
 ---
 
-## ✨ Key Features
+## ✨ Key Features-
 
 - 📰 Multi-source cybersecurity news aggregation
 - 🚨 CVE monitoring and vulnerability tracking
