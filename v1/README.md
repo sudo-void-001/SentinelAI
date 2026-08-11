@@ -1,4 +1,4 @@
-# SentinelAI
+# SentinelAI 
 
 > AI-powered Cyber Threat Intelligence Platform
 
