@@ -1,6 +1,6 @@
 # Changelog
 
-## [1.0.0] — 2026-06-28
+## [1.0.0] — 2026-06-28    
 
 ### Added
 - Project foundation and folder structure
