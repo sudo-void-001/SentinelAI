@@ -1,11 +1,11 @@
 # Contributing to SentinelAI
-
+  
 Thank you for your interest in contributing to SentinelAI.
 This document explains how to contribute effectively.
 
----
+---  
 
-## Who Can Contribute
+## Who Can Contribute  
 
 - Cybersecurity students and professionals
 - Python developers
