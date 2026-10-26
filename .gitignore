@@ -1,16 +1,16 @@
-# Secrets — never commit these 
+# Secrets — never commit these         
 .env
 
 # Database — contains your data
-data/
-*.db
+data/        
+*.db      
 
 # Generated reports
-reports/
+reports/        
 
 # Python cache — auto-generated, not your code
 __pycache__/
-*.pyc
+*.pyc                    
 *.pyo
 *.pyd
 
@@ -18,9 +18,9 @@ __pycache__/
 venv/
 env/
 .venv/
-
-# VS Code settings
-.vscode/
+          
+# VS Code settings 
+.vscode/                       
 
 # OS garbage
 .DS_Store
